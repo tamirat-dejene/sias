@@ -1,16 +1,13 @@
 import { getAllUsers, getAdminStats } from "@/app/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/auth";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Users, GraduationCap, BookOpen, UserCog } from "lucide-react";
+import { AlertCircle, Users, GraduationCap, BookOpen, UserCog, FileText, Settings, HelpCircle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { QuickLink } from "@/components/quick-link";
 
 export default async function AdminDashboard() {
-    // Server-side session validation
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     // Check authentication
     if (!session?.user) {
@@ -64,9 +61,31 @@ export default async function AdminDashboard() {
 
     return (
         <div className="p-8">
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold">System Administration</h1>
-                <p className="text-muted-foreground mt-1">Welcome, {session.user.name}</p>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold mb-2">System Administration</h1>
+                <p className="text-muted-foreground">Welcome, {session.user.name}</p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="grid md:grid-cols-3 gap-4 mb-8">
+                <QuickLink
+                    href="/admin/users"
+                    title="User Management"
+                    description="Manage users and change roles"
+                    icon={Users}
+                />
+                <QuickLink
+                    href="/admin/audit-logs"
+                    title="Audit Logs"
+                    description="View system activity and security logs"
+                    icon={FileText}
+                />
+                <QuickLink
+                    href="/help"
+                    title="Help & Support"
+                    description="Get help and learn about the system"
+                    icon={HelpCircle}
+                />
             </div>
 
             {/* Statistics Cards */}

@@ -1,12 +1,22 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
-import { db } from "@/lib/db";
-import { users, students, instructors, courses, enrollments, grades, dacShares, accounts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { hash } from "bcryptjs";
 
 async function seed() {
+  // Dynamically import db and schema to ensure env vars are loaded first
+  const { db } = await import("@/lib/db");
+  const {
+    users,
+    students,
+    instructors,
+    courses,
+    enrollments,
+    grades,
+    dacShares,
+  } = await import("@/db/schema");
+
   console.log("🌱 Starting database seed...\n");
 
   // Clear existing data
@@ -17,255 +27,314 @@ async function seed() {
   await db.delete(courses);
   await db.delete(students);
   await db.delete(instructors);
-  await db.delete(accounts);
   await db.delete(users);
   console.log("✅ Cleared existing data\n");
 
   // Create users with hashed passwords
   console.log("👥 Creating users...");
-  
+
   const password = await hash("password123", 10);
 
   // Insert users
-  const [student1User] = await db.insert(users).values({
-    id: crypto.randomUUID(),
-    name: "Alice Johnson",
-    email: "alice.student@university.edu",
-    emailVerified: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: "student",
-    department: "Computer Science",
-    securityLevel: "public",
-  }).returning();
-
-  const [student2User] = await db.insert(users).values({
-    id: crypto.randomUUID(),
-    name: "Bob Williams",
-    email: "bob.student@university.edu",
-    emailVerified: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: "student",
-    department: "Mathematics",
-    securityLevel: "public",
-  }).returning();
-
-  const [student3User] = await db.insert(users).values({
-    id: crypto.randomUUID(),
-    name: "Carol Davis",
-    email: "carol.student@university.edu",
-    emailVerified: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: "student",
-    department: "Computer Science",
-    securityLevel: "public",
-  }).returning();
-
-  const [instructor1User] = await db.insert(users).values({
-    id: crypto.randomUUID(),
-    name: "Dr. John Smith",
-    email: "dr.smith@university.edu",
-    emailVerified: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: "instructor",
-    department: "Computer Science",
-    securityLevel: "internal",
-  }).returning();
-
-  const [instructor2User] = await db.insert(users).values({
-    id: crypto.randomUUID(),
-    name: "Prof. Sarah Jones",
-    email: "prof.jones@university.edu",
-    emailVerified: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: "instructor",
-    department: "Mathematics",
-    securityLevel: "internal",
-  }).returning();
-
-  const [deptHeadUser] = await db.insert(users).values({
-    id: crypto.randomUUID(),
-    name: "Dr. Michael Chen",
-    email: "head.cs@university.edu",
-    emailVerified: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: "department_head",
-    department: "Computer Science",
-    securityLevel: "confidential",
-  }).returning();
-
-  const [registrarUser] = await db.insert(users).values({
-    id: crypto.randomUUID(),
-    name: "Emily Rodriguez",
-    email: "registrar@university.edu",
-    emailVerified: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: "registrar",
-    securityLevel: "confidential",
-  }).returning();
-
-  const [adminUser] = await db.insert(users).values({
-    id: crypto.randomUUID(),
-    name: "System Administrator",
-    email: "admin@university.edu",
-    emailVerified: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: "admin",
-    securityLevel: "restricted",
-  }).returning();
-
-  // Create account records with passwords
-  const allUsers = [student1User, student2User, student3User, instructor1User, instructor2User, deptHeadUser, registrarUser, adminUser];
-  
-  for (const user of allUsers) {
-    await db.insert(accounts).values({
+  const [student1User] = await db
+    .insert(users)
+    .values({
       id: crypto.randomUUID(),
-      accountId: user.email, // Use email as accountId
-      providerId: "email-password", // Better Auth uses this provider ID
-      userId: user.id,
-      password: password,
+      name: "Alice Johnson",
+      email: "alice.student@university.edu",
+      passwordHash: password,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
-  }
+      role: "student",
+      department: "Computer Science",
+      securityLevel: "public",
+    })
+    .returning();
+
+  const [student2User] = await db
+    .insert(users)
+    .values({
+      id: crypto.randomUUID(),
+      name: "Bob Williams",
+      email: "bob.student@university.edu",
+      passwordHash: password,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      role: "student",
+      department: "Mathematics",
+      securityLevel: "public",
+    })
+    .returning();
+
+  const [student3User] = await db
+    .insert(users)
+    .values({
+      id: crypto.randomUUID(),
+      name: "Carol Davis",
+      email: "carol.student@university.edu",
+      passwordHash: password,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      role: "student",
+      department: "Computer Science",
+      securityLevel: "public",
+    })
+    .returning();
+
+  const [instructor1User] = await db
+    .insert(users)
+    .values({
+      id: crypto.randomUUID(),
+      name: "Dr. John Smith",
+      email: "dr.smith@university.edu",
+      passwordHash: password,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      role: "instructor",
+      department: "Computer Science",
+      securityLevel: "internal",
+    })
+    .returning();
+
+  const [instructor2User] = await db
+    .insert(users)
+    .values({
+      id: crypto.randomUUID(),
+      name: "Prof. Sarah Jones",
+      email: "prof.jones@university.edu",
+      passwordHash: password,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      role: "instructor",
+      department: "Mathematics",
+      securityLevel: "internal",
+    })
+    .returning();
+
+  const [deptHeadUser] = await db
+    .insert(users)
+    .values({
+      id: crypto.randomUUID(),
+      name: "Dr. Michael Chen",
+      email: "head.cs@university.edu",
+      passwordHash: password,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      role: "department_head",
+      department: "Computer Science",
+      securityLevel: "confidential",
+    })
+    .returning();
+
+  const [registrarUser] = await db
+    .insert(users)
+    .values({
+      id: crypto.randomUUID(),
+      name: "Emily Rodriguez",
+      email: "registrar@university.edu",
+      passwordHash: password,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      role: "registrar",
+      securityLevel: "confidential",
+    })
+    .returning();
+
+  const [adminUser] = await db
+    .insert(users)
+    .values({
+      id: crypto.randomUUID(),
+      name: "System Administrator",
+      email: "admin@university.edu",
+      passwordHash: password,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      role: "admin",
+      securityLevel: "restricted",
+    })
+    .returning();
 
   console.log("✅ Created 8 users with passwords\n");
 
   // Create student records
   console.log("🎓 Creating student records...");
-  const [studentRecord1] = await db.insert(students).values({
-    userId: student1User.id,
-    year: 3,
-    enrollmentStatus: "active",
-  }).returning();
+  const [studentRecord1] = await db
+    .insert(students)
+    .values({
+      userId: student1User.id,
+      year: 3,
+      enrollmentStatus: "active",
+    })
+    .returning();
 
-  const [studentRecord2] = await db.insert(students).values({
-    userId: student2User.id,
-    year: 2,
-    enrollmentStatus: "active",
-  }).returning();
+  const [studentRecord2] = await db
+    .insert(students)
+    .values({
+      userId: student2User.id,
+      year: 2,
+      enrollmentStatus: "active",
+    })
+    .returning();
 
-  const [studentRecord3] = await db.insert(students).values({
-    userId: student3User.id,
-    year: 4,
-    enrollmentStatus: "active",
-  }).returning();
+  const [studentRecord3] = await db
+    .insert(students)
+    .values({
+      userId: student3User.id,
+      year: 4,
+      enrollmentStatus: "active",
+    })
+    .returning();
 
   console.log("✅ Created 3 student records\n");
 
   // Create instructor records
   console.log("👨‍🏫 Creating instructor records...");
-  const [instructorRecord1] = await db.insert(instructors).values({
-    userId: instructor1User.id,
-  }).returning();
+  const [instructorRecord1] = await db
+    .insert(instructors)
+    .values({
+      userId: instructor1User.id,
+    })
+    .returning();
 
-  const [instructorRecord2] = await db.insert(instructors).values({
-    userId: instructor2User.id,
-  }).returning();
+  const [instructorRecord2] = await db
+    .insert(instructors)
+    .values({
+      userId: instructor2User.id,
+    })
+    .returning();
 
   console.log("✅ Created 2 instructor records\n");
 
   // Create courses
   console.log("📚 Creating courses...");
-  const [course1] = await db.insert(courses).values({
-    code: "CS101",
-    title: "Introduction to Computer Science",
-    department: "Computer Science",
-    instructorId: instructorRecord1.id,
-    securityLevel: "internal",
-  }).returning();
+  const [course1] = await db
+    .insert(courses)
+    .values({
+      code: "CS101",
+      title: "Introduction to Computer Science",
+      department: "Computer Science",
+      instructorId: instructorRecord1.id,
+      securityLevel: "internal",
+    })
+    .returning();
 
-  const [course2] = await db.insert(courses).values({
-    code: "CS201",
-    title: "Data Structures and Algorithms",
-    department: "Computer Science",
-    instructorId: instructorRecord1.id,
-    securityLevel: "internal",
-  }).returning();
+  const [course2] = await db
+    .insert(courses)
+    .values({
+      code: "CS201",
+      title: "Data Structures and Algorithms",
+      department: "Computer Science",
+      instructorId: instructorRecord1.id,
+      securityLevel: "internal",
+    })
+    .returning();
 
-  const [course3] = await db.insert(courses).values({
-    code: "CS301",
-    title: "Database Systems",
-    department: "Computer Science",
-    instructorId: instructorRecord1.id,
-    securityLevel: "internal",
-  }).returning();
+  const [course3] = await db
+    .insert(courses)
+    .values({
+      code: "CS301",
+      title: "Database Systems",
+      department: "Computer Science",
+      instructorId: instructorRecord1.id,
+      securityLevel: "internal",
+    })
+    .returning();
 
-  const [course4] = await db.insert(courses).values({
-    code: "MATH201",
-    title: "Linear Algebra",
-    department: "Mathematics",
-    instructorId: instructorRecord2.id,
-    securityLevel: "internal",
-  }).returning();
+  const [course4] = await db
+    .insert(courses)
+    .values({
+      code: "MATH201",
+      title: "Linear Algebra",
+      department: "Mathematics",
+      instructorId: instructorRecord2.id,
+      securityLevel: "internal",
+    })
+    .returning();
 
-  const [course5] = await db.insert(courses).values({
-    code: "MATH301",
-    title: "Discrete Mathematics",
-    department: "Mathematics",
-    instructorId: instructorRecord2.id,
-    securityLevel: "internal",
-  }).returning();
+  const [course5] = await db
+    .insert(courses)
+    .values({
+      code: "MATH301",
+      title: "Discrete Mathematics",
+      department: "Mathematics",
+      instructorId: instructorRecord2.id,
+      securityLevel: "internal",
+    })
+    .returning();
 
   console.log("✅ Created 5 courses\n");
 
   // Create enrollments
   console.log("📝 Creating enrollments...");
-  
-  const [enrollment1] = await db.insert(enrollments).values({
-    studentId: studentRecord1.id,
-    courseId: course1.id,
-    semester: "Fall 2024",
-  }).returning();
 
-  const [enrollment2] = await db.insert(enrollments).values({
-    studentId: studentRecord1.id,
-    courseId: course2.id,
-    semester: "Fall 2024",
-  }).returning();
+  const [enrollment1] = await db
+    .insert(enrollments)
+    .values({
+      studentId: studentRecord1.id,
+      courseId: course1.id,
+      semester: "Fall 2024",
+    })
+    .returning();
 
-  const [enrollment3] = await db.insert(enrollments).values({
-    studentId: studentRecord1.id,
-    courseId: course4.id,
-    semester: "Spring 2025",
-  }).returning();
+  const [enrollment2] = await db
+    .insert(enrollments)
+    .values({
+      studentId: studentRecord1.id,
+      courseId: course2.id,
+      semester: "Fall 2024",
+    })
+    .returning();
 
-  const [enrollment4] = await db.insert(enrollments).values({
-    studentId: studentRecord2.id,
-    courseId: course4.id,
-    semester: "Fall 2024",
-  }).returning();
+  const [enrollment3] = await db
+    .insert(enrollments)
+    .values({
+      studentId: studentRecord1.id,
+      courseId: course4.id,
+      semester: "Spring 2025",
+    })
+    .returning();
 
-  const [enrollment5] = await db.insert(enrollments).values({
-    studentId: studentRecord2.id,
-    courseId: course5.id,
-    semester: "Fall 2024",
-  }).returning();
+  const [enrollment4] = await db
+    .insert(enrollments)
+    .values({
+      studentId: studentRecord2.id,
+      courseId: course4.id,
+      semester: "Fall 2024",
+    })
+    .returning();
 
-  const [enrollment6] = await db.insert(enrollments).values({
-    studentId: studentRecord3.id,
-    courseId: course3.id,
-    semester: "Fall 2024",
-  }).returning();
+  const [enrollment5] = await db
+    .insert(enrollments)
+    .values({
+      studentId: studentRecord2.id,
+      courseId: course5.id,
+      semester: "Fall 2024",
+    })
+    .returning();
 
-  const [enrollment7] = await db.insert(enrollments).values({
-    studentId: studentRecord3.id,
-    courseId: course2.id,
-    semester: "Spring 2025",
-  }).returning();
+  const [enrollment6] = await db
+    .insert(enrollments)
+    .values({
+      studentId: studentRecord3.id,
+      courseId: course3.id,
+      semester: "Fall 2024",
+    })
+    .returning();
+
+  const [enrollment7] = await db
+    .insert(enrollments)
+    .values({
+      studentId: studentRecord3.id,
+      courseId: course2.id,
+      semester: "Spring 2025",
+    })
+    .returning();
 
   console.log("✅ Created 7 enrollments\n");
 
   // Create grades
   console.log("📊 Creating grades...");
-  
+
   await db.insert(grades).values({
     enrollmentId: enrollment1.id,
     grade: "A",
@@ -305,7 +374,7 @@ async function seed() {
 
   // Create DAC shares
   console.log("🔐 Creating DAC shares...");
-  
+
   await db.insert(dacShares).values({
     resourceType: "course",
     resourceId: course1.id,

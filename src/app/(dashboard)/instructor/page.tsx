@@ -1,16 +1,13 @@
 import { getInstructorCourses } from "@/app/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DacShareDialog } from "@/components/dac-share-dialog";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/auth";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, BookOpen } from "lucide-react";
+import { AlertCircle, BookOpen, FileText, Settings, HelpCircle } from "lucide-react";
+import { QuickLink } from "@/components/quick-link";
 
 export default async function InstructorDashboard() {
-    // Server-side session validation
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     // Check authentication
     if (!session?.user) {

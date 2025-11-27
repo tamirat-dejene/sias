@@ -1,16 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getStudentGrades } from "@/app/actions";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, BookOpen, GraduationCap } from "lucide-react";
+import { AlertCircle, BookOpen, GraduationCap, FileText, Settings, HelpCircle } from "lucide-react";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
+import { students, enrollments, courses, grades } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { QuickLink } from "@/components/quick-link";
 
 export default async function StudentDashboard() {
-    // Get session server-side
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     // Check authentication
     if (!session?.user) {
@@ -86,9 +87,33 @@ export default async function StudentDashboard() {
 
     return (
         <div className="p-8">
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold">Student Portal</h1>
-                <p className="text-muted-foreground mt-1">Welcome, {session.user.name}</p>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold mb-2">Student Portal</h1>
+                <p className="text-muted-foreground">
+                    Welcome back, {session.user.name}!
+                </p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="grid md:grid-cols-3 gap-4 mb-8">
+                <QuickLink
+                    href="/student/transcripts"
+                    title="My Transcripts"
+                    description="View and download your academic transcripts"
+                    icon={FileText}
+                />
+                <QuickLink
+                    href="/settings"
+                    title="Settings"
+                    description="Manage your account and security settings"
+                    icon={Settings}
+                />
+                <QuickLink
+                    href="/help"
+                    title="Help & Support"
+                    description="Get help and learn about the system"
+                    icon={HelpCircle}
+                />
             </div>
 
             <div className="grid gap-4 md:grid-cols-3 mb-8">

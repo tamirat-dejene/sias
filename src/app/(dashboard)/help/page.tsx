@@ -46,14 +46,18 @@ export default function HelpPage() {
                             <div className="mt-6">
                                 <h3 className="font-semibold text-lg mb-3">Key Features</h3>
                                 <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                                    <li>Multi-factor Authentication (MFA) with OTP</li>
+                                    <li>Multi-factor Authentication (MFA) with TOTP</li>
+                                    <li>Email Verification & Google reCAPTCHA v3</li>
+                                    <li>Password Policies (complexity, strength, history)</li>
+                                    <li>Account Lockout (5 attempts, 30 min)</li>
                                     <li>Role-Based Access Control (RBAC)</li>
                                     <li>Mandatory Access Control (MAC) with security levels</li>
                                     <li>Discretionary Access Control (DAC) for resource sharing</li>
-                                    <li>Rule-Based Access Control (RuBAC)</li>
+                                    <li>Rule-Based Access Control (RuBAC) - Time-based</li>
                                     <li>Attribute-Based Access Control (ABAC)</li>
-                                    <li>Comprehensive audit logging</li>
-                                    <li>Secure session management</li>
+                                    <li>Encrypted Audit Logging (AES-256-GCM)</li>
+                                    <li>Centralized Log Viewer for Admins</li>
+                                    <li>Automated Database Backups</li>
                                 </ul>
                             </div>
                         </CardContent>
@@ -79,7 +83,6 @@ export default function HelpPage() {
                                     <h4 className="font-semibold mb-2">Backend</h4>
                                     <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                                         <li>Next.js Server Actions</li>
-                                        <li>Better Auth (Authentication)</li>
                                         <li>PostgreSQL Database</li>
                                         <li>Drizzle ORM</li>
                                     </ul>
@@ -169,10 +172,14 @@ export default function HelpPage() {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <p className="text-sm text-muted-foreground">
-                                Access is determined by predefined rules. For example, students can only view
-                                grades for courses they are enrolled in, and instructors can only modify grades
-                                for courses they teach.
+                                Access is determined by predefined rules based on context like time and location.
                             </p>
+                            <div className="bg-muted p-4 rounded-lg">
+                                <p className="text-sm">
+                                    <strong>Example:</strong> Registrar routes are restricted to business hours
+                                    (Monday-Friday, 9 AM - 5 PM). Access outside these hours is automatically denied.
+                                </p>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -213,7 +220,8 @@ export default function HelpPage() {
                                 <ul className="list-disc list-inside text-sm space-y-1">
                                     <li>View own course enrollments</li>
                                     <li>View own grades</li>
-                                    <li>Calculate GPA</li>
+                                    <li>Calculate GPA automatically</li>
+                                    <li>View and download transcripts</li>
                                     <li>View academic record history</li>
                                 </ul>
                             </div>
@@ -235,9 +243,10 @@ export default function HelpPage() {
                                 <h4 className="font-semibold mb-2">Capabilities:</h4>
                                 <ul className="list-disc list-inside text-sm space-y-1">
                                     <li>View assigned courses</li>
-                                    <li>Assign and modify grades for own courses</li>
+                                    <li>Enter and modify grades for enrolled students</li>
+                                    <li>View student roster for own courses</li>
                                     <li>Share course access with other users (DAC)</li>
-                                    <li>View enrolled students in own courses</li>
+                                    <li>Track grade submission status</li>
                                 </ul>
                             </div>
                         </CardContent>
@@ -259,8 +268,9 @@ export default function HelpPage() {
                                 <ul className="list-disc list-inside text-sm space-y-1">
                                     <li>View all courses in their department</li>
                                     <li>View all students in their department</li>
-                                    <li>Monitor department performance</li>
-                                    <li>Approve grade changes (if applicable)</li>
+                                    <li>Generate department reports and analytics</li>
+                                    <li>Monitor department GPA and performance</li>
+                                    <li>View enrollment distribution by year</li>
                                 </ul>
                             </div>
                         </CardContent>
@@ -282,8 +292,10 @@ export default function HelpPage() {
                                 <ul className="list-disc list-inside text-sm space-y-1">
                                     <li>View all student records across all departments</li>
                                     <li>View all courses across all departments</li>
+                                    <li>Enroll students in courses</li>
+                                    <li>Drop students from courses</li>
                                     <li>View all enrollments and grades</li>
-                                    <li>Manage course schedules</li>
+                                    <li>Access restricted to business hours (9 AM - 5 PM)</li>
                                 </ul>
                             </div>
                         </CardContent>
@@ -303,10 +315,11 @@ export default function HelpPage() {
                             <div className="bg-muted p-4 rounded-lg">
                                 <h4 className="font-semibold mb-2">Capabilities:</h4>
                                 <ul className="list-disc list-inside text-sm space-y-1">
-                                    <li>Manage all user accounts</li>
-                                    <li>View system statistics</li>
-                                    <li>Access audit logs</li>
+                                    <li>Manage all user accounts and roles</li>
+                                    <li>View and search encrypted audit logs</li>
+                                    <li>View system statistics and analytics</li>
                                     <li>Configure security policies (MAC)</li>
+                                    <li>Manage backups and system configuration</li>
                                     <li>Full access to all system resources</li>
                                 </ul>
                             </div>
@@ -325,15 +338,20 @@ export default function HelpPage() {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <p className="text-sm text-muted-foreground">
-                                SIAS uses Better Auth for secure authentication with email and password.
+                                SIAS uses custom authentication with comprehensive security features.
                             </p>
                             <div className="bg-muted p-4 rounded-lg space-y-2">
                                 <h4 className="font-semibold">Features:</h4>
                                 <ul className="list-disc list-inside text-sm space-y-1">
-                                    <li>Secure password hashing</li>
-                                    <li>Email verification</li>
-                                    <li>Session management with secure cookies</li>
-                                    <li>Automatic session expiration</li>
+                                    <li>Bcrypt password hashing with auto-salting</li>
+                                    <li>Email verification with time-limited tokens</li>
+                                    <li>Google reCAPTCHA v3 bot protection</li>
+                                    <li>Password complexity requirements (12+ chars)</li>
+                                    <li>Password strength validation (zxcvbn)</li>
+                                    <li>Password history to prevent reuse</li>
+                                    <li>Account lockout (5 failed attempts, 30 min)</li>
+                                    <li>Session management with HTTP-only cookies</li>
+                                    <li>Email-based password reset</li>
                                 </ul>
                             </div>
                         </CardContent>
@@ -348,15 +366,18 @@ export default function HelpPage() {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <p className="text-sm text-muted-foreground">
-                                Optional two-factor authentication using One-Time Passwords (OTP) for enhanced security.
+                                TOTP-based two-factor authentication compatible with Google Authenticator, Authy, and other authenticator apps.
                             </p>
-                            <Alert>
-                                <Info className="h-4 w-4" />
-                                <AlertTitle>Development Mode</AlertTitle>
-                                <AlertDescription>
-                                    In development, OTP codes are logged to the console instead of being sent via email.
-                                </AlertDescription>
-                            </Alert>
+                            <div className="bg-muted p-4 rounded-lg space-y-2">
+                                <h4 className="font-semibold">Setup Process:</h4>
+                                <ol className="list-decimal list-inside text-sm space-y-1">
+                                    <li>Navigate to Settings page</li>
+                                    <li>Click "Setup MFA"</li>
+                                    <li>Scan QR code with authenticator app</li>
+                                    <li>Enter verification code</li>
+                                    <li>Save backup codes securely</li>
+                                </ol>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -369,17 +390,22 @@ export default function HelpPage() {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <p className="text-sm text-muted-foreground">
-                                All significant actions are logged for security auditing and compliance.
+                                All significant actions are logged with AES-256-GCM encryption for security auditing and compliance.
                             </p>
                             <div className="bg-muted p-4 rounded-lg">
                                 <h4 className="font-semibold mb-2">Logged Events:</h4>
                                 <ul className="list-disc list-inside text-sm space-y-1">
-                                    <li>User login/logout</li>
+                                    <li>User login/logout (with IP address)</li>
+                                    <li>Role changes and user management</li>
                                     <li>Grade modifications</li>
-                                    <li>Access control changes</li>
+                                    <li>Enrollment changes</li>
                                     <li>Resource sharing (DAC)</li>
                                     <li>Failed access attempts</li>
+                                    <li>System configuration changes</li>
                                 </ul>
+                                <p className="text-sm mt-2">
+                                    <strong>Admin Access:</strong> Admins can view, search, and filter all logs via the centralized audit log viewer.
+                                </p>
                             </div>
                         </CardContent>
                     </Card>

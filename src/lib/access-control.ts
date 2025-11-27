@@ -1,85 +1,123 @@
-import { db } from "./db";
+import { db } from "@/lib/db";
 import { dacShares, users } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 // Types
-type User = typeof users.$inferSelect;
-type SecurityLevel = "public" | "internal" | "confidential" | "restricted";
+export type SecurityLevel =
+  | "public"
+  | "internal"
+  | "confidential"
+  | "restricted";
+export type Role =
+  | "student"
+  | "instructor"
+  | "department_head"
+  | "registrar"
+  | "admin";
+export type Permission = "read" | "write";
 
+// ==========================================
+// 1. Mandatory Access Control (MAC)
+// ==========================================
 const SECURITY_LEVELS: Record<SecurityLevel, number> = {
-  public: 0,
-  internal: 1,
-  confidential: 2,
-  restricted: 3,
+  public: 1,
+  internal: 2,
+  confidential: 3,
+  restricted: 4,
 };
 
-/**
- * Mandatory Access Control (MAC)
- * Checks if user has sufficient security clearance for the resource.
- * Rule: User Level >= Resource Level (Read Down)
- */
-export function checkMAC(userLevel: SecurityLevel, resourceLevel: SecurityLevel): boolean {
+export function checkMAC(
+  userLevel: SecurityLevel,
+  resourceLevel: SecurityLevel
+): boolean {
   return SECURITY_LEVELS[userLevel] >= SECURITY_LEVELS[resourceLevel];
 }
 
-/**
- * Discretionary Access Control (DAC)
- * Checks if the resource owner has explicitly shared the resource with the user.
- */
-export async function checkDAC(userId: string, resourceId: number, resourceType: string, permission: "read" | "write"): Promise<boolean> {
-  const share = await db.query.dacShares.findFirst({
-    where: and(
-      eq(dacShares.sharedWithId, userId),
-      eq(dacShares.resourceId, resourceId),
-      eq(dacShares.resourceType, resourceType),
-      eq(dacShares.permission, permission)
-    ),
-  });
-  return !!share;
+// ==========================================
+// 2. Discretionary Access Control (DAC)
+// ==========================================
+export async function checkDAC(
+  userId: string,
+  resourceId: number,
+  resourceType: string,
+  permission: Permission = "read"
+): Promise<boolean> {
+  // Check if owner (implicit DAC) - This would typically be checked before calling this,
+  // but we can add logic here if we pass ownerId. For now, we check shared permissions.
+
+  const [share] = await db
+    .select()
+    .from(dacShares)
+    .where(
+      and(
+        eq(dacShares.sharedWithId, userId),
+        eq(dacShares.resourceId, resourceId),
+        eq(dacShares.resourceType, resourceType)
+      )
+    )
+    .limit(1);
+
+  if (!share) return false;
+
+  // If asking for 'read', any permission works. If 'write', need 'write'.
+  if (permission === "read") return true;
+  return share.permission === "write";
 }
 
-/**
- * Attribute-Based Access Control (ABAC)
- * Evaluates access based on user attributes, resource attributes, and environment conditions.
- */
-export function checkABAC(user: User, resource: any, context: any): boolean {
-  // Example Policy: Instructors can only edit grades for their own courses
-  if (user.role === "instructor" && context.action === "edit_grade") {
-    return resource.instructorId === user.id; // Assuming resource is a Course or linked entity
+// ==========================================
+// 3. Role-Based Access Control (RBAC)
+// ==========================================
+const ROLE_HIERARCHY: Record<Role, number> = {
+  student: 1,
+  instructor: 2,
+  department_head: 3,
+  registrar: 4,
+  admin: 5,
+};
+
+export function checkRBAC(userRole: Role, requiredRole: Role): boolean {
+  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
+}
+
+// ==========================================
+// 4. Rule-Based Access Control (RuBAC)
+// ==========================================
+export function checkRuBAC(
+  ruleType: "business_hours" | "weekday_only"
+): boolean {
+  const now = new Date();
+  const day = now.getDay(); // 0 = Sun, 6 = Sat
+  const hour = now.getHours();
+
+  if (ruleType === "business_hours") {
+    // Mon-Fri, 9am-5pm
+    if (day === 0 || day === 6) return false;
+    if (hour < 9 || hour >= 17) return false;
+    return true;
   }
 
-  // Example Policy: Students can only view their own grades
-  if (user.role === "student" && context.action === "view_grade") {
-    return resource.studentId === user.id; // Assuming resource is an Enrollment or Grade
-  }
-
-  // Example Policy: Department Heads can view data for their department
-  if (user.role === "department_head" && context.action === "view_report") {
-    return resource.department === user.department;
+  if (ruleType === "weekday_only") {
+    return day !== 0 && day !== 6;
   }
 
   return false;
 }
 
-/**
- * Rule-Based Access Control (RuBAC) Helper
- * Checks time and location constraints.
- */
-export function checkRuBAC(context: { ip?: string, time?: Date }): boolean {
-  const now = context.time || new Date();
-  const hour = now.getHours();
-
-  // Rule: Access allowed only between 8:00 AM – 6:00 PM
-  if (hour < 8 || hour >= 18) {
-    return false;
+// ==========================================
+// 5. Attribute-Based Access Control (ABAC)
+// ==========================================
+export function checkABAC(
+  userAttributes: Record<string, any>,
+  resourceAttributes: Record<string, any>,
+  policy: "same_department" | "same_year"
+): boolean {
+  if (policy === "same_department") {
+    return userAttributes.department === resourceAttributes.department;
   }
 
-  // Rule: Instructors can only update grades on campus IP (mock check)
-  if (context.ip && !context.ip.startsWith("192.168.1.")) { // Example Campus IP range
-     // This would be specific to the action, but for general RuBAC check:
-     // return false; 
-     // We'll leave this as a warning or specific check in the handler
+  if (policy === "same_year") {
+    return userAttributes.year === resourceAttributes.year;
   }
 
-  return true;
+  return false;
 }

@@ -1,54 +1,17 @@
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "./db";
-import { nextCookies } from "better-auth/next-js";
-import { twoFactor } from "better-auth/plugins";
+import { validateSession } from "./auth-utils";
+import { headers } from "next/headers";
+import { cookies } from "next/headers";
 
-import { users, sessions, accounts, verifications } from "@/db/schema";
+export async function getSession() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("session_token")?.value;
 
-export const auth = betterAuth({
-  adapter: drizzleAdapter(db, {
-    provider: "pg",
-    schema: {
-        user: users,
-        session: sessions,
-        account: accounts,
-        verification: verifications
-    }
-  }),
-  emailAndPassword: {
-    enabled: true,
-  },
-  user: {
-    additionalFields: {
-      role: {
-        type: "string",
-        required: false,
-        defaultValue: "student",
-      },
-      department: {
-        type: "string",
-        required: false,
-      },
-      securityLevel: {
-        type: "string",
-        required: false,
-        defaultValue: "public",
-      },
-    },
-  },
-  plugins: [
-    nextCookies(),
-    twoFactor({
-        otpOptions: {
-            async sendOTP({ user, otp }: { user: { email: string }, otp: string }) {
-                // In a real app, send email. For dev, log it.
-                console.log(`[MFA] OTP for ${user.email}: ${otp}`);
-            }
-        }
-    })
-  ]
-});
+  if (!token) {
+    return null;
+  }
 
-export type Session = typeof auth.$Infer.Session;
-export type Auth = typeof auth;
+  return await validateSession(token);
+}
+
+export type Session = Awaited<ReturnType<typeof getSession>>;
+export type User = NonNullable<Session>["user"];

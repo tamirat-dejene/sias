@@ -32,15 +32,19 @@ export default function Home() {
       {/* Features Section */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Advanced Security Features</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Comprehensive Security Features</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <FeatureCard
+              title="Multi-Factor Authentication"
+              description="TOTP-based MFA with Google Authenticator for enhanced account security."
+            />
             <FeatureCard
               title="RBAC (Role-Based)"
               description="Strict role separation for Students, Instructors, Admins, Department Heads, and Registrars."
             />
             <FeatureCard
               title="MAC (Mandatory)"
-              description="Label-based security (Public, Internal, Confidential) ensures data is only accessible to cleared users."
+              description="Label-based security (Public, Internal, Confidential, Restricted) ensures data is only accessible to cleared users."
             />
             <FeatureCard
               title="DAC (Discretionary)"
@@ -48,15 +52,23 @@ export default function Home() {
             />
             <FeatureCard
               title="RuBAC (Rule-Based)"
-              description="Access restricted by time of day (8 AM - 6 PM) and location constraints."
+              description="Access restricted by time of day (9 AM - 5 PM for Registrar) and contextual rules."
             />
             <FeatureCard
               title="ABAC (Attribute-Based)"
-              description="Dynamic access decisions based on user attributes and resource context."
+              description="Dynamic access decisions based on user attributes like department and role."
             />
             <FeatureCard
-              title="Audit Logging"
-              description="Comprehensive logging of all system actions for security and compliance."
+              title="Encrypted Audit Logging"
+              description="All system actions logged with AES-256-GCM encryption for security and compliance."
+            />
+            <FeatureCard
+              title="Password Security"
+              description="Strong password policies, bcrypt hashing, account lockout, and email-based reset."
+            />
+            <FeatureCard
+              title="Email Verification"
+              description="Token-based email verification with Google reCAPTCHA v3 bot protection."
             />
           </div>
         </div>

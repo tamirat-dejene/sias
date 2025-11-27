@@ -13,7 +13,31 @@ export default function SetupRole() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string>("");
     const [success, setSuccess] = useState(false);
+    const [checking, setChecking] = useState(true);
     const router = useRouter();
+
+    // Check if user already has a role
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const res = await fetch("/api/auth/session");
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.user?.role) {
+                        // User already has a role, redirect to dashboard
+                        router.push("/dashboard");
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error("Session check failed:", error);
+            } finally {
+                setChecking(false);
+            }
+        };
+
+        checkSession();
+    }, [router]);
 
     const handleSetRole = async () => {
         if (!role) {
@@ -44,6 +68,18 @@ export default function SetupRole() {
             setLoading(false);
         }
     };
+
+    if (checking) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <Card className="w-[400px]">
+                    <CardContent className="pt-6">
+                        <p className="text-center text-muted-foreground">Checking your account...</p>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
