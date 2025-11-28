@@ -7,6 +7,7 @@ import {
   json,
   integer,
   pgEnum,
+  real,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", [
@@ -90,6 +91,8 @@ export const students = pgTable("student", {
     .notNull()
     .references(() => users.id),
   year: integer("year").notNull(),
+  major: text("major").notNull(),
+  gpa: real("gpa").default(0.0).notNull(),
   enrollmentStatus: text("enrollment_status").notNull(),
 });
 
@@ -105,6 +108,7 @@ export const courses = pgTable("course", {
   code: text("code").notNull().unique(),
   title: text("title").notNull(),
   department: text("department").notNull(),
+  credits: integer("credits").notNull(),
   instructorId: integer("instructor_id").references(() => instructors.id),
   securityLevel: securityLevelEnum("security_level")
     .default("internal")

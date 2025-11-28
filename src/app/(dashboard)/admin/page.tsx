@@ -69,6 +69,24 @@ export default async function AdminDashboard() {
             {/* Quick Links */}
             <div className="grid md:grid-cols-3 gap-4 mb-8">
                 <QuickLink
+                    href="/admin/courses"
+                    title="Course Management"
+                    description="Add and manage courses"
+                    icon={BookOpen}
+                />
+                <QuickLink
+                    href="/admin/instructors"
+                    title="Instructor Management"
+                    description="Add and manage instructors"
+                    icon={UserCog}
+                />
+                <QuickLink
+                    href="/admin/students"
+                    title="Student Management"
+                    description="Add and manage students"
+                    icon={GraduationCap}
+                />
+                <QuickLink
                     href="/admin/users"
                     title="User Management"
                     description="Manage users and change roles"

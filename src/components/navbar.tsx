@@ -87,6 +87,9 @@ export function Navbar() {
             admin: [
                 { href: "/admin", label: "My Portal", icon: Shield },
                 { href: "/admin/users", label: "User Management", icon: Users },
+                { href: "/admin/courses", label: "Courses", icon: BookOpen },
+                { href: "/admin/instructors", label: "Instructors", icon: Users },
+                { href: "/admin/students", label: "Students", icon: GraduationCap },
                 { href: "/admin/audit-logs", label: "Audit Logs", icon: FileText },
             ],
         };

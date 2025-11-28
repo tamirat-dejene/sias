@@ -163,6 +163,7 @@ async function seed() {
     .values({
       userId: student1User.id,
       year: 3,
+      major: "Computer Science",
       enrollmentStatus: "active",
     })
     .returning();
@@ -172,6 +173,7 @@ async function seed() {
     .values({
       userId: student2User.id,
       year: 2,
+      major: "Mathematics",
       enrollmentStatus: "active",
     })
     .returning();
@@ -181,6 +183,7 @@ async function seed() {
     .values({
       userId: student3User.id,
       year: 4,
+      major: "Physics",
       enrollmentStatus: "active",
     })
     .returning();
@@ -213,6 +216,7 @@ async function seed() {
       code: "CS101",
       title: "Introduction to Computer Science",
       department: "Computer Science",
+      credits: 3,
       instructorId: instructorRecord1.id,
       securityLevel: "internal",
     })
@@ -224,6 +228,7 @@ async function seed() {
       code: "CS201",
       title: "Data Structures and Algorithms",
       department: "Computer Science",
+      credits: 4,
       instructorId: instructorRecord1.id,
       securityLevel: "internal",
     })
@@ -235,6 +240,7 @@ async function seed() {
       code: "CS301",
       title: "Database Systems",
       department: "Computer Science",
+      credits: 3,
       instructorId: instructorRecord1.id,
       securityLevel: "internal",
     })
@@ -246,6 +252,7 @@ async function seed() {
       code: "MATH201",
       title: "Linear Algebra",
       department: "Mathematics",
+      credits: 3,
       instructorId: instructorRecord2.id,
       securityLevel: "internal",
     })
@@ -257,6 +264,7 @@ async function seed() {
       code: "MATH301",
       title: "Discrete Mathematics",
       department: "Mathematics",
+      credits: 3,
       instructorId: instructorRecord2.id,
       securityLevel: "internal",
     })
