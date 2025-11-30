@@ -119,6 +119,9 @@ export function Navbar() {
                         SIAS
                     </Link>
                     <div className="flex gap-4">
+                        <Link href="/help">
+                            <Button variant="ghost">Docs</Button>
+                        </Link>
                         <Link href="/sign-in">
                             <Button variant="ghost">Sign In</Button>
                         </Link>

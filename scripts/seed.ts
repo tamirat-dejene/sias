@@ -15,6 +15,10 @@ async function seed() {
     enrollments,
     grades,
     dacShares,
+    auditLogs,
+    passwordHistory,
+    passwordResets,
+    sessions,
   } = await import("@/db/schema");
 
   console.log("🌱 Starting database seed...\n");
@@ -27,6 +31,10 @@ async function seed() {
   await db.delete(courses);
   await db.delete(students);
   await db.delete(instructors);
+  await db.delete(auditLogs);
+  await db.delete(sessions);
+  await db.delete(passwordHistory);
+  await db.delete(passwordResets);
   await db.delete(users);
   console.log("✅ Cleared existing data\n");
 

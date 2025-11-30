@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Image from "next/image";
+import { disable2FA } from "@/app/actions";
 
 export default function SettingsPage() {
     const [step, setStep] = useState<"initial" | "setup" | "success">("initial");
@@ -13,6 +14,22 @@ export default function SettingsPage() {
     const [code, setCode] = useState("");
     const [backupCodes, setBackupCodes] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
+    const [mfaEnabled, setMfaEnabled] = useState(false);
+
+    useEffect(() => {
+        const checkMfaStatus = async () => {
+            try {
+                const res = await fetch("/api/auth/session");
+                if (res.ok) {
+                    const data = await res.json();
+                    setMfaEnabled(data.user?.mfaEnabled || false);
+                }
+            } catch (error) {
+                console.error("Error checking MFA status:", error);
+            }
+        };
+        checkMfaStatus();
+    }, [step]);
 
     const startSetup = async () => {
         setLoading(true);
@@ -45,11 +62,26 @@ export default function SettingsPage() {
             if (res.ok) {
                 setBackupCodes(data.backupCodes);
                 setStep("success");
+                setMfaEnabled(true);
             } else {
                 alert(data.error);
             }
         } catch (error) {
             alert("Error verifying code");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDisableMfa = async () => {
+        if (!confirm("Are you sure you want to disable MFA? This will reduce your account security.")) return;
+        setLoading(true);
+        try {
+            await disable2FA();
+            setMfaEnabled(false);
+            alert("MFA disabled successfully");
+        } catch (error) {
+            alert("Error disabling MFA");
         } finally {
             setLoading(false);
         }
@@ -67,10 +99,23 @@ export default function SettingsPage() {
                 <CardContent>
                     {step === "initial" && (
                         <div className="space-y-4">
-                            <p>MFA is currently disabled. Enable it to protect your account.</p>
-                            <Button onClick={startSetup} disabled={loading}>
-                                {loading ? "Loading..." : "Enable MFA"}
-                            </Button>
+                            {mfaEnabled ? (
+                                <div className="space-y-4">
+                                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 flex items-center gap-2">
+                                        MFA is currently enabled.
+                                    </div>
+                                    <Button variant="destructive" onClick={handleDisableMfa} disabled={loading}>
+                                        {loading ? "Disabling..." : "Disable MFA"}
+                                    </Button>
+                                </div>
+                            ) : (
+                                <>
+                                    <p>MFA is currently disabled. Enable it to protect your account.</p>
+                                    <Button onClick={startSetup} disabled={loading}>
+                                        {loading ? "Loading..." : "Enable MFA"}
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     )}
 
@@ -105,7 +150,7 @@ export default function SettingsPage() {
                     {step === "success" && (
                         <div className="space-y-4">
                             <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
-                                ✅ MFA Enabled Successfully!
+                                MFA Enabled Successfully!
                             </div>
 
                             <div className="space-y-2">
@@ -116,6 +161,9 @@ export default function SettingsPage() {
                                         <div key={i}>{code}</div>
                                     ))}
                                 </div>
+                                <Button onClick={() => setStep("initial")} variant="outline" className="w-full mt-4">
+                                    Done
+                                </Button>
                             </div>
                         </div>
                     )}

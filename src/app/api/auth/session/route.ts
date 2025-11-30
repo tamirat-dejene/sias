@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
         role: session.user.role,
         department: session.user.department,
         securityLevel: session.user.securityLevel,
+        mfaEnabled: session.user.mfaEnabled,
       },
     });
   } catch (error) {

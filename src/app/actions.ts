@@ -119,12 +119,20 @@ export async function getAdminStats() {
   const user = await getCurrentUser();
   if (!user || user.role !== "admin") return null;
 
-  const [userCount] = await db.select({ count: users.id }).from(users);
-  const [studentCount] = await db.select({ count: students.id }).from(students);
+  const { sql } = await import("drizzle-orm");
+
+  const [userCount] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(users);
+  const [studentCount] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(students);
   const [instructorCount] = await db
-    .select({ count: instructors.id })
+    .select({ count: sql<number>`count(*)::int` })
     .from(instructors);
-  const [courseCount] = await db.select({ count: courses.id }).from(courses);
+  const [courseCount] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(courses);
 
   return {
     totalUsers: userCount?.count || 0,
@@ -232,4 +240,18 @@ export async function getAllEnrollments() {
     .innerJoin(users, eq(students.userId, users.id))
     .innerJoin(courses, eq(enrollments.courseId, courses.id))
     .leftJoin(grades, eq(grades.enrollmentId, enrollments.id));
+}
+
+export async function disable2FA() {
+  const user = await getCurrentUser();
+  if (!user) throw new Error("Unauthorized");
+
+  await db
+    .update(users)
+    .set({
+      mfaEnabled: false,
+      mfaSecret: null,
+      backupCodes: null,
+    })
+    .where(eq(users.id, user.id));
 }
