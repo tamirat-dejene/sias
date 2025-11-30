@@ -10,6 +10,7 @@ import {
   generateSessionToken,
 } from "@/lib/auth-utils";
 import { sendVerificationEmail } from "@/lib/email-service";
+import { logAction } from "@/lib/audit-logger";
 
 export async function POST(request: NextRequest) {
   try {
@@ -63,6 +64,11 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (existingUser) {
+      // Log failed signup attempt (duplicate email)
+      await logAction(null, "signup_failed", "user", {
+        email,
+        reason: "duplicate_email",
+      });
       return NextResponse.json(
         { error: "User with this email already exists" },
         { status: 400 }
@@ -97,6 +103,13 @@ export async function POST(request: NextRequest) {
     // Send verification email
     await sendVerificationEmail(email, verificationToken);
 
+    // Log successful signup
+    await logAction(userId, "signup_success", "user", {
+      email,
+      name,
+      role: newUser.role,
+    });
+
     // Create session
     const { token, expiresAt } = await createSession(userId);
 
@@ -124,6 +137,10 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("Sign up error:", error);
+    // Log signup error
+    await logAction(null, "signup_error", "user", {
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
