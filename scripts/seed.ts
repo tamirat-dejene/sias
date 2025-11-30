@@ -148,21 +148,9 @@ async function seed() {
     })
     .returning();
 
-  const [adminUser] = await db
-    .insert(users)
-    .values({
-      id: crypto.randomUUID(),
-      name: "System Administrator",
-      email: "admin@university.edu",
-      passwordHash: password,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      role: "admin",
-      securityLevel: "restricted",
-    })
-    .returning();
+  // Admin removed for security reasons
 
-  console.log("✅ Created 8 users with passwords\n");
+  console.log("✅ Created 7 users with passwords\n");
 
   // Create student records
   console.log("🎓 Creating student records...");
@@ -429,8 +417,8 @@ async function seed() {
   console.log("   - head.cs@university.edu");
   console.log("\n   Registrar:");
   console.log("   - registrar@university.edu");
-  console.log("\n   Admin:");
-  console.log("   - admin@university.edu\n");
+  // console.log("\n   Admin:");
+  // console.log("   - admin@university.edu\n");
 
   process.exit(0);
 }
